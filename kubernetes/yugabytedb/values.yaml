@@ -1,0 +1,80 @@
+# YugabyteDB Helm chart values
+image:
+  repository: yugabytedb/yugabyte
+  tag: 2.18.0.0-b104
+  pullPolicy: IfNotPresent
+
+storage:
+  master:
+    count: 1
+    size: 1Gi
+    storageClass: standard
+  tserver:
+    count: 1
+    size: 1Gi
+    storageClass: standard
+
+resource:
+  master:
+    requests:
+      cpu: "0.5"
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  tserver:
+    requests:
+      cpu: "0.5"
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+replicas:
+  master: 1
+  tserver: 1
+
+serviceEndpoints:
+  - name: "yb-master-ui"
+    type: ClusterIP
+    app: "yb-master"
+    ports:
+      ui: 7000
+  - name: "yb-tserver-service"
+    type: ClusterIP
+    app: "yb-tserver"
+    ports:
+      ycql-port: 9042
+      yedis-port: 6379
+      ysql-port: 5433
+
+enableLoadBalancer: false
+
+# Auto-scaling configuration
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Security settings
+rbac:
+  create: true
+
+tls:
+  enabled: false
+
+istio:
+  enabled: false
+
+credentials:
+  username: yugabyte
+  password: yugabyte
+
+preInitDb:
+  enabled: true
+  scripts:
+    create_databases.sql: |
+      CREATE DATABASE IF NOT EXISTS productdb;
+      CREATE DATABASE IF NOT EXISTS orderdb;

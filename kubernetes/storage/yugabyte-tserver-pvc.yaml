@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: datadir0-yb-tserver-0
+  namespace: microservices
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi  # Adjust the size as needed
+  storageClassName: gp2-storage-new  # Use the correct storage class

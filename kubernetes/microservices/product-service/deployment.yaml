@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+      - name: product-service
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/product-service.conf
+          subPath: nginx-config.conf
+        - name: static-content
+          mountPath: /usr/share/nginx/html/products
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: product-service-nginx-config
+      - name: static-content
+        configMap:
+          name: product-service-static-content
+          items:
+          - key: index.html
+            path: index.html

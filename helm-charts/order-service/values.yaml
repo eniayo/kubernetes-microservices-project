@@ -1,0 +1,45 @@
+# Modified values for order-service
+replicaCount: 1
+
+image:
+  repository: localhost:5000/order-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+
+resources:
+  limits:
+    cpu: 300m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+
+database:
+  host: "yb-tserver-0.yb-tservers.microservices"
+  port: "5433"
+  name: "orderdb"
+  existingSecret: "yugabyte-credentials"
+  usernameKey: "username"
+  passwordKey: "password"
+
+services:
+  opa:
+    enabled: false
+    url: ""
+  productService:
+    url: "http://product-service.microservices.svc.cluster.local:8000"
+
+probe:
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 5

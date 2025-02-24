@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opa
+  namespace: microservices
+  labels:
+    app: opa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa
+  template:
+    metadata:
+      labels:
+        app: opa
+    spec:
+      serviceAccountName: opa
+      containers:
+      - name: opa
+        image: openpolicyagent/opa:latest
+        ports:
+        - name: http
+          containerPort: 8181
+        args:
+        - "run"
+        - "--server"
+        - "--addr=:8181"
+        - "/policies/order-service.rego"
+        - "/policies/product-service.rego"
+        volumeMounts:
+        - readOnly: true
+          mountPath: /policies
+          name: opa-config
+      volumes:
+      - name: opa-config
+        configMap:
+          name: opa-config

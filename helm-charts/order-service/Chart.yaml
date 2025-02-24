@@ -1,0 +1,13 @@
+apiVersion: v2
+name: order-service
+description: A Helm chart for the Order Microservice
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - microservices
+  - order
+  - api
+maintainers:
+  - name: DevOps Team
+    email: devops@example.com

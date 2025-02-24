@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  template:
+    spec:
+      containers:
+      - name: opa-sidecar
+        image: openpolicyagent/opa:latest
+        args:
+        - "run"
+        - "--server"
+        - "--addr=localhost:8181"
+        volumeMounts:
+        - name: opa-config
+          mountPath: /policies
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+      volumes:
+      - name: opa-config
+        configMap:
+          name: opa-config

@@ -1,0 +1,37 @@
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: microservices-routes
+  namespace: microservices
+spec:
+  http:
+  - name: product-service-route
+    match:
+      hosts:
+      - '*localhost'
+      paths:
+      - /products*
+    backends:
+    - serviceName: product-service
+      servicePort: 8000
+  
+  - name: order-service-route
+    match:
+      hosts:
+      - '*localhost'
+      paths:
+      - /orders*
+    backends:
+    - serviceName: order-service
+      servicePort: 8000
+    
+  - name: health-route
+    match:
+      hosts:
+      - '*localhost'
+      paths:
+      - /health
+    backends:
+    - serviceName: product-service
+      servicePort: 8000
+      weight: 100

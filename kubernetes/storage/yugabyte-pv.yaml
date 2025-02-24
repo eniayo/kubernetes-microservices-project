@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: yugabyte-pv
+spec:
+  capacity:
+    storage: 10Gi  # Adjust the size as needed
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: gp2-storage-new  # Match this with your PVC's storage class
+  hostPath:
+    path: /mnt/data  # Change this to a valid path on your nodes

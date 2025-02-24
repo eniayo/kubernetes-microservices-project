@@ -19,16 +19,9 @@ The architecture consists of the following components:
 - Both services persist data in **YugabyteDB**.
 - **KEDA** monitors metrics (e.g., CPU, custom Prometheus metrics) and scales the services accordingly.
 
-**Diagram**:  
-*(To be rendered in tools like Draw.io or included as an image in `/docs/architecture.png`)*  
-```
-External Clients → APISIX Gateway → [ Product Service ↔ OPA ] ↔ [ Order Service ↔ OPA ]
-                                   ↘                    ↙
-                                     YugabyteDB (Distributed SQL)
-                                   ↖                    ↘
-                                 KEDA (Monitoring & Scaling)
-```
+**Diagram**:
 
+![Diagram](architectural_diagram.png)
 ## Prerequisites
 - Kubernetes cluster (e.g., AWS EKS, Minikube)
 - Helm 3

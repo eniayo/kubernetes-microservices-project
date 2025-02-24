@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service
+        image: eni1998/order-service:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DB_HOST
+          value: "yb-tservers"  # YugaByte master service
+        - name: DB_PORT
+          value: "5433"        # Default YSQL port
+        - name: DB_USER
+          value: "yugabyte"    # Default username
+        - name: DB_PASSWORD
+          value: "yugabyte"    # Default password
+        - name: DB_NAME
+          value: "orderdb"     # Database name
+        - name: K8S_NAMESPACE
+          value: "microservices"  # Namespace for the service

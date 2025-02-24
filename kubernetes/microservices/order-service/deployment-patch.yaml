@@ -1,0 +1,22 @@
+spec:
+  template:
+    spec:
+      containers:
+      - name: order-service
+        image: eni1998/order-service:latest
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: order-service-config
+              key: DB_HOST
+        - name: DB_PORT
+          value: "5433"
+        - name: DB_USER
+          value: "yugabyte"
+        - name: DB_PASSWORD
+          value: "yugabyte"
+        - name: DB_NAME
+          value: "orderdb"
+        - name: K8S_NAMESPACE
+          value: ""

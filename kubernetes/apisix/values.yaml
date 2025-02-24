@@ -1,0 +1,73 @@
+# APISIX Helm chart values
+gateway:
+  type: NodePort
+  externalTrafficPolicy: Local
+  nodePort:
+    http: 30080
+    tls: 30443
+  
+  replicas: 1
+  tls:
+    enabled: false
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+admin:
+  enabled: true
+  credentials:
+    admin: aDm1n
+    viewer: v1eWer
+  allow:
+    ipList:
+      - 127.0.0.1/24
+      - 0.0.0.0/0
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hosts:
+    - host: api.microservices.local
+      paths:
+        - path: /
+          pathType: Prefix
+
+dashboard:
+  enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+etcd:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  persistence:
+    enabled: true
+    size: 1Gi
+
+serviceAccount:
+  create: true
