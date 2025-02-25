@@ -13,7 +13,7 @@ spec:
       - /products*
     backends:
     - serviceName: product-service
-      servicePort: 80 #changed from port 8000
+      servicePort: 8000 #changed from port 80
     plugins:
     - name: cors
       enable: true
@@ -67,7 +67,7 @@ spec:
       - /health
     backends:
     - serviceName: product-service
-      servicePort: 80
+      servicePort: 8000
       weight: 100
     - serviceName: order-service
       servicePort: 8000

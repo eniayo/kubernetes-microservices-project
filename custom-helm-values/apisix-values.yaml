@@ -1,41 +1,49 @@
-# Simplified APISIX configuration
+# custom-helm-values/apisix-values.yaml
 gateway:
-  type: NodePort
+  type: LoadBalancer  # Changed from NodePort to LoadBalancer for external access
+  externalTrafficPolicy: Local
   replicas: 1
+  tls:
+    enabled: false
   resources:
     requests:
       cpu: 100m
       memory: 128Mi
     limits:
-      cpu: 300m
-      memory: 256Mi
+      cpu: 500m
+      memory: 512Mi
 
 admin:
   enabled: true
   credentials:
     admin: aDm1n
+    viewer: v1eWer
+  allow:
+    ipList:
+      - 0.0.0.0/0  # Simplified from your example, adjust as needed
   resources:
     requests:
       cpu: 50m
       memory: 64Mi
     limits:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 200m
+      memory: 256Mi
 
-dashboard:
-  enabled: false  # Disable dashboard to save resources
+ingress-controller:  # Changed from 'ingress' to match APISIX chart terminology
+  enabled: true
 
 etcd:
-  enabled: false  # Use built-in etcd mode
-  
-standalone:
-  enabled: true  # Use standalone mode (no external etcd)
-
-# Reduce resource usage
-apisix:
-  enableIPv6: false
-  luaModuleHook: 
-    enabled: false
-
-global:
-  enabled: false
+  enabled: true
+  host:
+    - "http://apisix-etcd-client.microservices.svc.cluster.local:2379"  # Correct etcd endpoint
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  persistence:
+    enabled: true
+    size: 1Gi

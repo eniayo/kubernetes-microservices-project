@@ -1,0 +1,25 @@
+apiVersion: apisix.apache.org/v2
+kind: ApisixRoute
+metadata:
+  name: basic-routes
+  namespace: microservices
+spec:
+  http:
+    - name: product-route
+      match:
+        hosts:
+          - api.example.com
+        paths:
+          - /products*
+      backends:
+        - serviceName: product-service
+          servicePort: 8000
+    - name: order-route
+      match:
+        hosts:
+          - api.example.com
+        paths:
+          - /orders*
+      backends:
+        - serviceName: order-service
+          servicePort: 8000
