@@ -33,7 +33,7 @@ The architecture consists of the following components:
 ## Installation
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/kubernetes-microservices-project.git
+git clone https://github.com/eniayo/kubernetes-microservices-project.git
 cd kubernetes-microservices-project
 ```
 
