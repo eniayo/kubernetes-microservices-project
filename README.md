@@ -26,9 +26,30 @@ The architecture consists of the following components:
 - Kubernetes cluster (e.g., AWS EKS, Minikube)
 - Helm 3
 - `kubectl` configured for your cluster
-- Docker
+- Docker(for local testing)
 - AWS CLI (if using EKS)
 - Git
+
+Project Structure
+Copy.
+├── LICENSE
+├── README.md
+├── architectural_diagram.png
+├── custom-helm-values/      # Custom Helm values for deployments
+├── deploy.sh                # Main deployment script
+├── docs/                    # Additional documentation
+├── helm-charts/             # Helm charts for microservices
+├── kubernetes/              # Kubernetes manifests
+│   ├── apisix/              # APISIX configuration
+│   ├── keda/                # KEDA scalers
+│   ├── microservices/       # Service definitions
+│   ├── monitoring/          # Monitoring configuration
+│   ├── opa/                 # OPA policies and configuration
+│   ├── storage/             # Storage configuration
+│   └── yugabytedb/          # YugabyteDB configuration
+└── microservices/           # Source code for microservices
+    ├── order-service/       # Order service implementation
+    └── product-service/     # Product service implementation
 
 ## Installation
 ### 1. Clone the Repository
@@ -98,6 +119,14 @@ curl -H "Host: api.microservices.local" http://$GATEWAY_IP/orders/
 ### 4. YugabyteDB Persistence
 - **Challenge**: Data loss on pod restarts.
 - **Solution**: Configured Persistent Volume Claims (PVCs) with appropriate storage classes.
+
+###Monitoring
+The deployment includes Prometheus and Grafana for monitoring:
+bashCopy# Get Grafana admin password
+kubectl get secret prometheus-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode
+
+# Port-forward Grafana
+kubectl port-forward svc/prometheus-grafana -n 
 
 ## Testing
 ### 1. Unit Tests
