@@ -14,13 +14,28 @@ spec:
         app: product-service
     spec:
       containers:
-      - name: product-service
+      - name: product-api
+        image: eni1998/product-service:latest  
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DB_HOST
+          value: "yb-tserver-0.yb-tservers"
+        - name: DB_PORT
+          value: "5433"
+        - name: DB_USER
+          value: "yugabyte"
+        - name: DB_PASSWORD
+          value: "yugabyte"
+        - name: DB_NAME
+          value: "productdb"
+      - name: nginx
         image: nginx:latest
         ports:
         - containerPort: 80
         volumeMounts:
         - name: nginx-config
-          mountPath: /etc/nginx/conf.d/product-service.conf
+          mountPath: /etc/nginx/conf.d/default.conf
           subPath: nginx-config.conf
         - name: static-content
           mountPath: /usr/share/nginx/html/products
@@ -34,3 +49,31 @@ spec:
           items:
           - key: index.html
             path: index.html
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: product-service-nginx-config
+  namespace: microservices
+data:
+  nginx-config.conf: |
+    server {
+        listen 80;
+        server_name localhost;
+
+        location /api/ {
+            proxy_pass http://localhost:8000/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location / {
+            root /usr/share/nginx/html/products;
+            index index.html;
+            try_files $uri $uri/ /index.html;
+        }
+    }
+
+

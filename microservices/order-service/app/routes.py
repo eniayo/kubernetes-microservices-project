@@ -11,6 +11,36 @@ logger = logging.getLogger(__name__)
 # Product service URL for verifying products
 PRODUCT_SERVICE_URL = os.getenv("PRODUCT_SERVICE_URL", "http://product-service.default.svc.cluster.local:8000")
 
+# Create a router for internal endpoints
+internal_router = APIRouter()
+
+# List of trusted services that can access internal endpoints
+TRUSTED_SERVICES = ["product-service", "inventory-service"]
+
+# Dependency to check service identity
+async def verify_service_identity(x_service_id: str = Header(None)):
+    if not x_service_id or x_service_id not in TRUSTED_SERVICES:
+        logger.warning(f"Unauthorized access attempt with service ID: {x_service_id}")
+        raise HTTPException(
+            status_code=403, 
+            detail="Access forbidden: Service identity verification failed"
+        )
+    logger.info(f"Authorized access from service: {x_service_id}")
+    return x_service_id
+
+# Internal endpoint that only trusted services can access
+@internal_router.get("/", dependencies=[Depends(verify_service_identity)])
+async def internal_endpoint():
+    """Internal endpoint that returns sensitive information only for other services."""
+    return {
+        "message": "This is internal service data",
+        "data": {
+            "service_health": "optimal",
+            "db_connection_pool": 12,
+            "current_processing_capacity": "85%"
+        }
+    }
+
 def get_orders(db: Session, skip: int = 0, limit: int = 100):
     """Get all orders with pagination"""
     return db.query(OrderModel).offset(skip).limit(limit).all()
@@ -99,7 +129,15 @@ def cancel_order(db: Session, order_id: int):
     db.commit()
     logger.info(f"Cancelled order ID: {order_id}")
     
-    # TODO: If needed, we could add logic here to return items to inventory
-    # by calling the product service, but for simplicity, we'll skip that for now
-    
     return {"success": True, "message": f"Order {order_id} cancelled"}
+
+# Export the internal_router so it can be imported in main.py
+__all__ = [
+    "get_orders", 
+    "get_order", 
+    "create_order", 
+    "update_order", 
+    "cancel_order", 
+    "get_customer_orders",
+    "internal_router"
+]

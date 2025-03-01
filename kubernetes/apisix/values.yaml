@@ -1,4 +1,3 @@
-# APISIX Helm chart values
 gateway:
   type: NodePort
   externalTrafficPolicy: Local

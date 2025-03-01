@@ -9,20 +9,8 @@ spec:
     kind: Deployment
   minReplicaCount: 1
   maxReplicaCount: 5
-  pollingInterval: 15
-  cooldownPeriod: 30
   triggers:
-  - type: prometheus
-    metadata:
-      serverAddress: http://prometheus-server.monitoring.svc.cluster.local:9090
-      metricName: http_requests_total_product
-      threshold: "10"
-      query: sum(rate(http_requests_total{app="product-service"}[2m]))
   - type: cpu
+    metricType: Utilization
     metadata:
-      type: Utilization
-      value: "70"
-  - type: memory
-    metadata:
-      type: Utilization
-      value: "70"
+      value: "50"

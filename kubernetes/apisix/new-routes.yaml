@@ -10,7 +10,7 @@ spec:
         hosts:
           - api.example.com
         paths:
-          - /products*
+          - /products/*
       backends:
         - serviceName: product-service
           servicePort: 8000
@@ -19,7 +19,7 @@ spec:
         hosts:
           - api.example.com
         paths:
-          - /orders*
+          - /orders/*
       backends:
         - serviceName: order-service
           servicePort: 8000

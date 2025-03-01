@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "3"
+    meta.helm.sh/release-name: product-service
+    meta.helm.sh/release-namespace: microservices
+  creationTimestamp: "2025-02-26T20:40:18Z"
+  generation: 3
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: product-service
+  namespace: microservices
+  resourceVersion: "3115212"
+  uid: 0e40cc3e-32f9-4105-bec1-a13c2fadb197
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: product-service
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2025-02-27T22:09:34+01:00"
+      creationTimestamp: null
+      labels:
+        app: product-service
+    spec:
+      containers:
+      - image: nginx:latest
+        imagePullPolicy: Always
+        name: product-service
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2025-02-26T20:40:20Z"
+    lastUpdateTime: "2025-02-26T20:40:20Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2025-02-26T20:40:18Z"
+    lastUpdateTime: "2025-02-27T21:09:36Z"
+    message: ReplicaSet "product-service-5d8b97b48d" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 3
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1

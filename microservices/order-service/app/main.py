@@ -1,4 +1,5 @@
 import os
+from app.routes import internal_router
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
@@ -167,6 +168,8 @@ async def get_customer_orders(
 ):
     from app.routes import get_customer_orders as get_customer_orders_route
     return get_customer_orders_route(db, customer_id)
+
+app.include_router(internal_router, prefix="/internal", tags=["internal"])
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -20,7 +20,7 @@ spec:
         - containerPort: 8000
         env:
         - name: DB_HOST
-          value: "yb-tservers"  # YugaByte master service
+          value: "yb-tserver-0.yb-tservers"  # YugaByte master service
         - name: DB_PORT
           value: "5433"        # Default YSQL port
         - name: DB_USER
@@ -31,3 +31,5 @@ spec:
           value: "orderdb"     # Database name
         - name: K8S_NAMESPACE
           value: "microservices"  # Namespace for the service
+        - name: PRODUCT_SERVICE_URL
+          value: "http://product-service.microservices.svc.cluster.local:8000"

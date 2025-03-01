@@ -11,6 +11,6 @@ spec:
     app: order-service
   ports:
   - port: 8000
-    targetPort: 8000
+    targetPort: 80
     name: http
   type: ClusterIP

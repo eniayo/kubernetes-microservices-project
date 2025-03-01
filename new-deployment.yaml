@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+  namespace: microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+    spec:
+      containers:
+      - name: fastapi
+        image: tiangolo/uvicorn-gunicorn-fastapi:latest
+        ports:
+        - containerPort: 8000
+        command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+        volumeMounts:
+        - name: app-code
+          mountPath: /app/main.py
+          subPath: main.py
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+      volumes:
+      - name: app-code
+        configMap:
+          name: product-service-code
+      - name: nginx-config
+        configMap:
+          name: nginx-product-config

@@ -10,7 +10,7 @@ spec:
   selector:
     app: product-service
   ports:
-  - port: 80
-    targetPort: 80
+  - port: 8000
+    targetPort: 80 #product-service container is configured to expose port 8000, but Nginx is only listening on port 80.
     name: http
-  type: LoadBalancer #changed from ClusterIp
+  type: ClusterIP #changed from LoadBalancer
