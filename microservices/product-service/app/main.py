@@ -5,7 +5,7 @@ import httpx
 import logging
 from typing import List, Optional
 import uvicorn
-from app.models import Product, ProductCreate, ProductUpdate
+from app.models import Product, ProductCreate, ProductUpdate, ProductModel
 from app.database import init_db, get_db, SessionLocal
 from sqlalchemy.orm import Session
 import time
@@ -92,6 +92,8 @@ async def startup_event():
 def health_check():
     return {"status": "healthy", "service": "product-service"}
 
+# Implement route functions directly instead of importing
+
 @app.get("/products", response_model=List[Product])
 async def get_products(
     skip: int = 0, 
@@ -99,8 +101,8 @@ async def get_products(
     db: Session = Depends(get_db),
     _: bool = Depends(check_policy)
 ):
-    from app.routes import get_products as get_products_route
-    return get_products_route(db, skip, limit)
+    """Get all products with pagination"""
+    return db.query(ProductModel).offset(skip).limit(limit).all()
 
 @app.get("/products/{product_id}", response_model=Product)
 async def get_product(
@@ -108,8 +110,11 @@ async def get_product(
     db: Session = Depends(get_db),
     _: bool = Depends(check_policy)
 ):
-    from app.routes import get_product as get_product_route
-    return get_product_route(db, product_id)
+    """Get a specific product by ID"""
+    product = db.query(ProductModel).filter(ProductModel.id == product_id).first()
+    if product is None:
+        raise HTTPException(status_code=404, detail=f"Product with ID {product_id} not found")
+    return product
 
 @app.post("/products", response_model=Product, status_code=201)
 async def create_product(
@@ -117,18 +122,39 @@ async def create_product(
     db: Session = Depends(get_db),
     _: bool = Depends(check_policy)
 ):
-    from app.routes import create_product as create_product_route
-    return create_product_route(db, product)
+    """Create a new product"""
+    db_product = ProductModel(
+        name=product.name,
+        description=product.description,
+        price=product.price,
+        stock=product.stock,
+        category=product.category
+    )
+    db.add(db_product)
+    db.commit()
+    db.refresh(db_product)
+    logger.info(f"Created new product: {db_product.name} (ID: {db_product.id})")
+    return db_product
 
 @app.put("/products/{product_id}", response_model=Product)
 async def update_product(
     product_id: int,
-    product: ProductUpdate,
+    product_update: ProductUpdate,
     db: Session = Depends(get_db),
     _: bool = Depends(check_policy)
 ):
-    from app.routes import update_product as update_product_route
-    return update_product_route(db, product_id, product)
+    """Update an existing product"""
+    db_product = get_product(db, product_id)
+    
+    # Update only provided fields
+    update_data = product_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_product, key, value)
+        
+    db.commit()
+    db.refresh(db_product)
+    logger.info(f"Updated product: {db_product.name} (ID: {db_product.id})")
+    return db_product
 
 @app.delete("/products/{product_id}", response_model=dict)
 async def delete_product(
@@ -136,8 +162,12 @@ async def delete_product(
     db: Session = Depends(get_db),
     _: bool = Depends(check_policy)
 ):
-    from app.routes import delete_product as delete_product_route
-    return delete_product_route(db, product_id)
+    """Delete a product"""
+    db_product = get_product(db, product_id)
+    db.delete(db_product)
+    db.commit()
+    logger.info(f"Deleted product ID: {product_id}")
+    return {"success": True, "message": f"Product {product_id} deleted"}
 
 @app.get("/products/{product_id}/stock")
 async def check_product_stock(
@@ -145,8 +175,9 @@ async def check_product_stock(
     db: Session = Depends(get_db),
     _: bool = Depends(check_policy)
 ):
-    from app.routes import get_product as get_product_route
-    product = get_product_route(db, product_id)
+    product = db.query(ProductModel).filter(ProductModel.id == product_id).first()
+    if product is None:
+        raise HTTPException(status_code=404, detail=f"Product with ID {product_id} not found")
     return {"product_id": product_id, "in_stock": product.stock > 0, "stock": product.stock}
 
 @app.post("/products/{product_id}/reserve")
@@ -156,8 +187,28 @@ async def reserve_product(
     db: Session = Depends(get_db),
     _: bool = Depends(check_policy)
 ):
-    from app.routes import reserve_product as reserve_product_route
-    return reserve_product_route(db, product_id, quantity)
+    """Reserve products by reducing stock"""
+    product = db.query(ProductModel).filter(ProductModel.id == product_id).first()
+    if product is None:
+        raise HTTPException(status_code=404, detail=f"Product with ID {product_id} not found")
+    
+    if product.stock < quantity:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Not enough stock available. Requested: {quantity}, Available: {product.stock}"
+        )
+    
+    product.stock -= quantity
+    db.commit()
+    db.refresh(product)
+    logger.info(f"Reserved {quantity} units of product ID: {product_id}")
+    
+    return {
+        "success": True,
+        "product_id": product_id,
+        "reserved_quantity": quantity,
+        "remaining_stock": product.stock
+    }
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

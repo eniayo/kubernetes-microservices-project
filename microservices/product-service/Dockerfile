@@ -13,8 +13,11 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create app directory
+RUN mkdir -p /app/app
+
 # Copy application code
-COPY . .
+COPY app/ /app/app/
 
 # Expose port
 EXPOSE 8000
